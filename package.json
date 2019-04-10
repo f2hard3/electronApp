@@ -1,0 +1,17 @@
+{
+  "name": "firesale",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./app/main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Sunggon Park",
+  "license": "ISC",
+  "dependencies": {
+    "electron": "^4.1.4",
+    "marked": "^0.6.2"
+  }
+}
