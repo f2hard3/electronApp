@@ -1,40 +1,83 @@
-const { app, BrowserWindow, dialog } = require('electron')
-const fs = require('fs')
+const { app, BrowserWindow, dialog } = require('electron');
+const path = require('path');
+const fs = require('fs');
 
-let mainWindow = null
+const windows = new Set();
 
-app.on('ready', () => {
-    mainWindow = new BrowserWindow({
-        show: false,
-        // webPreferences: { nodeIntegration: false }
-    })
+const createWindow = (exports.createWindow = () => {
+    let x, y;
 
-    mainWindow.webContents.loadFile(`${__dirname}/index.html`)
+    const currentWindow = BrowserWindow.getFocusedWindow();
 
-    mainWindow.once('ready-to-show', () => {
-        mainWindow.show()
-        mainWindow.webContents.openDevTools()
-    })
+    if (currentWindow) {
+        const [currentWindowX, currentWindowY] = currentWindow.getPosition();
+        x = currentWindowX + 10;
+        y = currentWindowY + 10;
+    }
 
-    mainWindow.on('closed', () => {
-        mainWindow = null
-    })
+    let newWindow = new BrowserWindow({ x, y, show: false });
+
+    newWindow.loadFile(path.join(__dirname, 'index.html'));
+
+    newWindow.once('ready-to-show', () => {
+        newWindow.webContents.openDevTools();
+        newWindow.show();
+    });
+
+    newWindow.on('closed', () => {
+        windows.delete(newWindow);
+        newWindow = null;
+    });
+
+    windows.add(newWindow);
+    return newWindow;
+});
+
+app.on('ready', createWindow);
+
+app.on('window-all-closed', () => {
+    if (process.platform === 'darwin') return false;
+    app.quit();
+});
+
+app.on('activate', (event, hasVisibleWindows) => {
+    if (!hasVisibleWindows) createWindow();
 })
 
-exports.getFileFromUser = () => {
-    const files = dialog.showOpenDialog(mainWindow, {
+const getFileFromUser = (exports.getFileFromUser = targetWindow => {
+    const files = dialog.showOpenDialog(targetWindow, {
         properties: ['openFile'],
         filters: [
             { name: 'Markdown Files', extensions: ['md', 'markdown'] },
             { name: 'Text Files', extensions: ['txt'] }
         ]
-    })
+    });
 
-    const openFile = file => {
-        const content = fs.readFileSync(file).toString()
-        mainWindow.webContents.send('file-opened', file, content)
-    }
+    if (files) openFile(targetWindow, files.shift());
+});
 
-    if (files) openFile(files.shift())    
-}
+const openFile = (exports.openFile = (targetWindow, file) => {
+    const content = fs.readFileSync(file).toString();
+    targetWindow.webContents.send('file-opened', file, content);
+});
 
+// let mainWindow = null
+
+// app.on('ready', () => {
+//     mainWindow = new BrowserWindow({
+//         show: false,
+//         // webPreferences: { nodeIntegration: false }
+//     })
+
+//     mainWindow.webContents.loadFile(`${__dirname}/index.html`)
+
+//     mainWindow.once('ready-to-show', () => {
+//         mainWindow.show()
+//         mainWindow.webContents.openDevTools()
+//         // getFileFromUser()
+//     })
+
+//     mainWindow.on('closed', () => {
+//         mainWindow = null
+//     })
+// })
