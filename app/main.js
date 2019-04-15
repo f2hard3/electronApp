@@ -44,6 +44,15 @@ app.on('activate', (event, hasVisibleWindows) => {
     if (!hasVisibleWindows) createWindow();
 })
 
+app.on('will-finish-launching', () => {
+    app.on('open-file', (event, file) => {
+        const win = createWindow();
+        win.once('ready-to-show', () => {
+            openFile(win, file);
+        });
+    });
+});
+
 const getFileFromUser = (exports.getFileFromUser = targetWindow => {
     const files = dialog.showOpenDialog(targetWindow, {
         properties: ['openFile'],
@@ -58,6 +67,8 @@ const getFileFromUser = (exports.getFileFromUser = targetWindow => {
 
 const openFile = (exports.openFile = (targetWindow, file) => {
     const content = fs.readFileSync(file).toString();
+    app.addRecentDocument(file);
+    targetWindow.setRepresentedFilename(file);
     targetWindow.webContents.send('file-opened', file, content);
 });
 
