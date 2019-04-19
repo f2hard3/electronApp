@@ -112,6 +112,14 @@ ipcRenderer.on('file-changed', (event, file, content) => {
     if (result === 0) renderFile(file, content);
 });
 
+ipcRenderer.on('save-markdown', () => {
+    mainProcess.saveMarkdown(currentWindow, filePath, markdownView.value);
+});
+
+ipcRenderer.on('save-html', () => {
+    mainProcess.saveHtml(currentWindow, filePath, markdownView.value);
+});
+
 /* Implement Drag and Drop */
 document.addEventListener('dragstart', event => event.preventDefault());
 document.addEventListener('dragover', event => event.preventDefault());
