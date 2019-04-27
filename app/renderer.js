@@ -1,4 +1,4 @@
-const { remote, ipcRenderer } = require('electron');
+const { remote, ipcRenderer, shell } = require('electron');
 const { Menu } = remote;
 const path = require('path');
 const mainProcess = remote.require('./main.js');
@@ -32,6 +32,9 @@ const renderFile = (file, content) => {
     markdownView.value = content;
     renderMarkdownToHtml(content);
 
+    showFileButton.disabled = false;
+    openInDefaultButton.disabled = false;
+
     updateUserInterface(false);
 };
 
@@ -56,11 +59,6 @@ markdownView.addEventListener('keyup', event => {
     const currentContent = event.target.value;
     renderMarkdownToHtml(currentContent);
     updateUserInterface(currentContent !== originalContent);
-});
-
-markdownView.addEventListener('contextmenu', event => {
-    event.preventDefault();
-    mardownContextMenu.popup();
 });
 
 newFileButton.addEventListener('click', () => {
@@ -167,13 +165,40 @@ markdownView.addEventListener('drop', event => {
     markdownView.classList.remove('drag-error');
 });
 
-const template = [
+const showFile = () => {
+    if (!filePath) return alert('This file has not been saved to the filesytem.');
+    shell.showItemInFolder(filePath);
+};
+
+const openInDefaultApplication = () => {
+    if (!filePath) return alert('This file has not been saved to the filesystem.');
+    shell.openItem(filePath);
+};
+
+showFileButton.addEventListener('click', showFile);
+openInDefaultButton.addEventListener('click', openInDefaultApplication);
+
+ipcRenderer.on('show-file', showFile);
+ipcRenderer.on('open-in-default', openInDefaultApplication);
+
+const getTemplate = () => [
     { label: 'Open File', click: () => mainProcess.getFileFromUser() },
+    { label: 'Show File in Folder', click: showFile, enabled: !!filePath },
+    {
+        label: 'Open in Default Editor',
+        click: openInDefaultApplication,
+        enabled: !!filePath
+    },
     { type: 'separator' },
     { label: 'Cut', role: 'cut' },
     { label: 'Copy', role: 'copy' },
     { label: 'Paste', role: 'paste' },
     { label: 'Select All', role: 'selectall' }
-]
+];
 
-const mardownContextMenu = Menu.buildFromTemplate(template);
+const createContextMenu = () => Menu.buildFromTemplate(getTemplate());
+
+markdownView.addEventListener('contextmenu', event => {
+    event.preventDefault();
+    createContextMenu().popup();
+});

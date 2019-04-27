@@ -1,12 +1,12 @@
-const { app, BrowserWindow, dialog, Menu } = require('electron');
-const applicationMenu = require('./application-menu');
+const { app, BrowserWindow, dialog } = require('electron');
+const createApplicationMenu = require('./application-menu');
 const fs = require('fs');
 
 const windows = new Set();
 const openFiles = new Map();
 
 app.on('ready', () => {
-    Menu.setApplicationMenu(applicationMenu);
+    createApplicationMenu();
     createWindow();
 });
 
@@ -50,6 +50,8 @@ const createWindow = (exports.createWindow = () => {
         newWindow.show();
     });
 
+    newWindow.on('focus', createApplicationMenu);
+
     newWindow.on('close', event => {
         if (newWindow.isDocumentEdited()) {
             event.preventDefault();
@@ -70,6 +72,7 @@ const createWindow = (exports.createWindow = () => {
 
     newWindow.on('closed', () => {
         windows.delete(newWindow);
+        createApplicationMenu();
         stopWatchingFile(newWindow);
         newWindow = null;
     });
@@ -94,10 +97,11 @@ const getFileFromUser = (exports.getFileFromUser = targetWindow => {
 
 const openFile = (exports.openFile = (targetWindow, file) => {
     const content = fs.readFileSync(file).toString();
+    startWatchingFile(targetWindow, file);
     app.addRecentDocument(file);
     targetWindow.setRepresentedFilename(file);
     targetWindow.webContents.send('file-opened', file, content);
-    startWatchingFile(targetWindow, file);
+    createApplicationMenu();
 });
 
 const saveMarkdown = (exports.saveMarkdown = (targetWindow, file, content) => {
