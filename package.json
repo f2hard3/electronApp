@@ -1,17 +1,22 @@
 {
   "name": "firesale",
   "version": "1.0.0",
-  "description": "",
+  "productName": "Fire Sale",
   "main": "./app/main.js",
   "scripts": {
     "start": "electron .",
+    "build": "npm run build-mac && npm run build-win",
+    "build-mac": "electron-packager . --platform=darwin --out=build --icon=icons/Icon.icns --asar --overwrite",
+    "build-win": "electron-packager . --platform=win32 --out=build --icon=icons/Icon.ico --asar --overwrite",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
   "author": "Sunggon Park",
   "license": "ISC",
   "dependencies": {
     "electron": "^4.1.4",
     "marked": "^0.6.2"
+  },
+  "devDependencies": {
+    "electron-packager": "^13.1.1"
   }
 }
