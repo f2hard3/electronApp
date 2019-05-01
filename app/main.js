@@ -2,6 +2,8 @@ const { app, BrowserWindow, dialog } = require('electron');
 const createApplicationMenu = require('./application-menu');
 const fs = require('fs');
 
+require('./crash-repoter');
+
 const windows = new Set();
 const openFiles = new Map();
 

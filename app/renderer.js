@@ -6,6 +6,8 @@ const currentWindow = remote.getCurrentWindow();
 
 const marked = require('marked');
 
+require('./crash-repoter');
+
 const markdownView = document.querySelector('#markdown');
 const htmlView = document.querySelector('#html');
 const newFileButton = document.querySelector('#new-file');

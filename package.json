@@ -13,6 +13,7 @@
   "author": "Sunggon Park",
   "license": "ISC",
   "dependencies": {
+    "dotenv": "^7.0.0",
     "electron": "^4.1.4",
     "marked": "^0.6.2"
   },
