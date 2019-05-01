@@ -4,7 +4,9 @@ const fs = require('fs');
 
 // require('./crash-repoter');
 
-if (require('electron-squirrel-startup')) return;
+require('./auto-updator');
+
+if (require('electron-squirrel-startup')) app.quit();
 
 const windows = new Set();
 const openFiles = new Map();
@@ -15,9 +17,7 @@ app.on('ready', () => {
 });
 
 app.on('window-all-closed', () => {
-    if (process.platform === 'darwin') {
-        return false;
-    }
+    if (process.platform !== 'darwin') app.quit();
 });
 
 app.on('will-finish-launching', () => {
