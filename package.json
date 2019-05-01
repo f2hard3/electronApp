@@ -1,7 +1,7 @@
 {
   "name": "firesale",
   "version": "1.0.0",
-  "productName": "Fire Sale",
+  "productName": "firesale",
   "main": "./app/main.js",
   "scripts": {
     "start": "electron .",
@@ -15,9 +15,11 @@
   "dependencies": {
     "dotenv": "^7.0.0",
     "electron": "^4.1.4",
+    "electron-squirrel-startup": "^1.0.0",
     "marked": "^0.6.2"
   },
   "devDependencies": {
-    "electron-packager": "^13.1.1"
+    "electron-packager": "^13.1.1",
+    "electron-winstaller": "^3.0.4"
   }
 }

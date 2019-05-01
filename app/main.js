@@ -2,7 +2,9 @@ const { app, BrowserWindow, dialog } = require('electron');
 const createApplicationMenu = require('./application-menu');
 const fs = require('fs');
 
-require('./crash-repoter');
+// require('./crash-repoter');
+
+if (require('electron-squirrel-startup')) return;
 
 const windows = new Set();
 const openFiles = new Map();
